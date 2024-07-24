@@ -43,23 +43,29 @@ def main(stdscr):
     curses.init_pair(5, curses.COLOR_BLACK, curses.COLOR_WHITE)  # Zorro
     curses.init_pair(6, curses.COLOR_RED, curses.COLOR_BLACK)    # Health bar
     curses.init_pair(7, curses.COLOR_BLUE, curses.COLOR_BLACK)   # Guards
+    curses.init_pair(8, curses.COLOR_RED, curses.COLOR_BLACK)   # Guards
 
     # Define the initial health of Zorro
     health = 100
-
-    # Define the initial position of Zorro
     zorro_x = 5
     zorro_y = 5
 
     # Define the map
     game_map = load_map('game_map_z.txt')
 
-    # Define initial positions of guards
-    guards = [(20, 5), (10, 8)]
-
     # Counter to slow down guard movement
     guard_move_counter = 0
     guard_move_interval = 5  # Guards move every 5 iterations
+    guards = []
+
+    # Create initial positions for guards and zorro
+    for y, row in enumerate(game_map):
+        for x, char in enumerate(row):
+            if (char == 'g'):
+                guards.append((x, y))
+            elif (char == 'z'):
+                zorro_x = x
+                zorro_y = y
 
     while True:
         # Clear the screen
@@ -74,6 +80,8 @@ def main(stdscr):
                     stdscr.addch(y, x, char, curses.color_pair(3))
                 elif char == ' ':
                     stdscr.addch(y, x, char, curses.color_pair(2))
+                elif char == '=':
+                    stdscr.addch(y, x, char, curses.color_pair(8))
 
         # Draw Zorro
         stdscr.addch(zorro_y, zorro_x, 'Z', curses.color_pair(5))
@@ -124,6 +132,16 @@ def main(stdscr):
             elif key == curses.KEY_RIGHT:
                 zorro_x -= 1
 
+        # Check if Zorro steps on lava and take damage
+        if game_map[zorro_y][zorro_x] == '=':
+            damage = roll(1, 10)
+            health -= damage
+            if health <= 0:
+                stdscr.addstr(1, 0, "Zorro has been defeated!", curses.color_pair(6))
+                stdscr.refresh()
+                stdscr.getch()
+                return
+
         # Guards attack Zorro if they are in the same position
         for (guard_x, guard_y) in guards:
             if guard_x == zorro_x and guard_y == zorro_y:
@@ -134,5 +152,7 @@ def main(stdscr):
                     stdscr.refresh()
                     stdscr.getch()
                     return
+
+
 
 curses.wrapper(main)
