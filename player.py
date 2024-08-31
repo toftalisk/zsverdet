@@ -9,6 +9,8 @@ class Player(MoveableGameObject):
         self.health = health
 
     def handle_input(self, key, game_map):
+        old_x, old_y = self.x, self.y
+
         if key == curses.KEY_UP and self.y > 0:
             self.y -= 1
         elif key == curses.KEY_DOWN and self.y < len(game_map) - 1:
@@ -19,7 +21,7 @@ class Player(MoveableGameObject):
             self.x += 1
 
         # Prevent walking through walls
-        if game_map[self.y][self.x] == '#':
+        if game_map[self.y][self.x].char == '#':
             if key == curses.KEY_UP:
                 self.y += 1
             elif key == curses.KEY_DOWN:
@@ -28,6 +30,9 @@ class Player(MoveableGameObject):
                 self.x += 1
             elif key == curses.KEY_RIGHT:
                 self.x -= 1
+
+        return (old_x != self.x or old_y != self.y), old_x, old_y
+
 
     def update(self, game_map, player):
         # Handle lava damage

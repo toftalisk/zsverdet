@@ -2,12 +2,19 @@ from moveable_game_object import MoveableGameObject
 from util import roll
 
 class Enemy(MoveableGameObject):
-    def __init__(self, x, y, char, color, health):
+    def __init__(self, x, y, char, color, max_health, speed):
         super().__init__(x, y, char, color)
-        self.health = health
+        self.health = max_health
+        self.cooldown = 1000 - speed
+        self.cooldownLeft = self.cooldown
 
     def update(self, game_map, player):
-        # Implement movement towards the player
+        self.cooldownLeft = self.cooldownLeft - 1
+        if (self.cooldownLeft == 0):
+            self.cooldownLeft = self.cooldown
+            self.move(game_map, player)
+
+    def move (self, game_map, player):
         if self.x < player.x:
             self.x += 1
         elif self.x > player.x:

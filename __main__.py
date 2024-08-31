@@ -35,7 +35,7 @@ def interpet_map(raw_map):
                 game_objects.append(player)
                 game_map[y][x] = GameObject(x, y, '.', 'white')
             if char == 'g':
-                game_objects.append(Enemy(x, y, 'g', 'blue', 100))
+                game_objects.append(Enemy(x, y, 'g', 'blue', 100, 990))
                 game_map[y][x] = GameObject(x, y, '.', 'white')
             elif char == '=':
                 game_map[y][x] = GameObject(x, y, '=', 'red')
@@ -61,10 +61,7 @@ def main(stdscr):
 
     while True:
         key = stdscr.getch()
-        player.handle_input(key, game_map)
-
-        updates = game_engine.update()
-        logging.info(list(map(lambda u: f"({u.x}, {u.y})", updates)))
+        updates = game_engine.update(key)
 
         draw_health_bar(stdscr, player.health)
 
@@ -72,10 +69,11 @@ def main(stdscr):
 
         stdscr.refresh()
 
-        if game_map[player.y][player.x] == '<':
+        if game_map[player.y][player.x].char == '>':
             current_map_file = 'game_map_z_2.txt'
-            game_map = load_map(current_map_file)
+            raw_map = load_map(current_map_file)
+            (player, game_objects, game_map) = interpet_map(raw_map)
             stdscr.clear()  # Clear the screen and redraw the new map
-            break
+
 
 curses.wrapper(main)
